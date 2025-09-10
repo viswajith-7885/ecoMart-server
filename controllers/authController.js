@@ -1,53 +1,48 @@
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import User from '../models/user.js'
+import User from "../models/user.js";
+import generateToken from "../utils/generatorToken.js";
 
-export const register = async (req,res)=>{
-    try {
-    const { username, email, password } = req.body;
+export const register = async (req, res) => {
+  const { username, email, password, role } = req.body; // 👈 allow role assignment
 
-    // check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ msg: "User already exists" });
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ username, email, password, role });
 
-    // create user
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPassword,
+    res.status(201).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id, user.role),
     });
-    await newUser.save();
-
-    res.status(201).json({ msg: "User registered successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 //Login
 
-export const login = async(req,res)=>{
- try {
-    const { email, password } = req.body;
-
-    // find user
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: "User not found" });
 
-    // check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
-
-    // generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (user && (await user.matchPassword(password))) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role, // 👈 include role
+        token: generateToken(user._id, user.role),
+      });
+    } else {
+      res.status(401).json({ message: "Invalid email or password" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-}
+};

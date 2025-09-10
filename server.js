@@ -2,7 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 import authRoute from './routes/authRoutes.js'
-
+import productRouter from './routes/productRoutes.js'
 
 const app = express();
 dotenv.config();
@@ -11,7 +11,12 @@ app.use(express.json())
 
 //Routes
 
+app.get("/",(req,res)=>{
+  res.send("hellow world")
+})
+
 app.use("/api/auth",authRoute)
+app.use('/api/product',productRouter)
 //DB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))

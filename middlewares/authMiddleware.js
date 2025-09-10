@@ -1,17 +1,37 @@
-// middleware/authMiddleware.js
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
+import User from "../models/user.js";
 
-function auth(req, res, next) {
-  const token = req.header("Authorization");
-  if (!token) return res.status(401).json({ msg: "No token, authorization denied" });
+// Protect routes (logged-in users only)
+export const protect = async (req, res, next) => {
+  let token;
 
-  try {
-    const verified = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
-    req.user = verified;
-    next();
-  } catch (err) {
-    res.status(400).json({ msg: "Token is not valid" });
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    try {
+      token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      req.user = await User.findById(decoded.id).select("-password");
+
+      if (!req.user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      next();
+    } catch (error) {
+      return res.status(401).json({ message: "Not authorized, token failed" });
+    }
   }
-}
 
-module.exports = auth;
+  if (!token) {
+    return res.status(401).json({ message: "Not authorized, no token" });
+  }
+};
+
+// Role-based authorization
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return res.status(403).json({ message: "Access denied: Admins only" });
+  }
+};
