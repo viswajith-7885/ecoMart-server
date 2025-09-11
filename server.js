@@ -16,7 +16,7 @@ app.get("/",(req,res)=>{
 })
 
 app.use("/api/auth",authRoute)
-app.use('/api/product',productRouter)
+app.use('/api/products',productRouter)
 //DB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
