@@ -4,6 +4,8 @@ import Product from "../models/products.js";
 export const create = async (req, res) => {
   try {
     const { name, price, description, image } = req.body;
+   
+    
 
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });
@@ -20,6 +22,9 @@ export const create = async (req, res) => {
     res.status(201).json(createdProduct);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+    console.log(error.message);
+     console.log(req.body);
+    
   }
 };
 
@@ -72,7 +77,7 @@ export const updateProduct = async (req, res) => {
 };
 
 //delete product
-export const deleteProduct = async () => {
+export const deleteProduct = async (req,res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {

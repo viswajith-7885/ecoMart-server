@@ -4,6 +4,8 @@ import generateToken from "../utils/generatorToken.js";
 export const register = async (req, res) => {
   const { username, email, password, role } = req.body; // 👈 allow role assignment
 
+  
+
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
