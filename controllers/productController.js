@@ -3,7 +3,7 @@ import Product from "../models/products.js";
 //create product
 export const create = async (req, res) => {
   try {
-    const { name, price, description, image } = req.body;
+    const { name, price, description, image ,usermail} = req.body;
    
     
 
@@ -16,6 +16,7 @@ export const create = async (req, res) => {
       price,
       description,
       image,
+      usermail,
     });
 
     const createdProduct = await product.save();
