@@ -3,7 +3,7 @@ import Product from "../models/products.js";
 //create product
 export const create = async (req, res) => {
   try {
-    const { name, price, description, image ,usermail} = req.body;
+    const { name, price, description, image ,usermail,category} = req.body;
    
     
 
@@ -17,6 +17,7 @@ export const create = async (req, res) => {
       description,
       image,
       usermail,
+      category,
     });
 
     const createdProduct = await product.save();
@@ -58,7 +59,7 @@ export const getProductById = async (req, res) => {
 //update product
 export const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, image } = req.body;
+    const { name, price, description, image,category } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -69,6 +70,7 @@ export const updateProduct = async (req, res) => {
     product.price = price || product.price;
     product.description = description || product.description;
     product.image = image || product.image;
+    product.category = image || product.category;
 
     const updateProduct = await product.save();
     res.json(updateProduct);
