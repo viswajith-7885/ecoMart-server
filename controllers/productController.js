@@ -70,7 +70,7 @@ export const updateProduct = async (req, res) => {
     product.price = price || product.price;
     product.description = description || product.description;
     product.image = image || product.image;
-    product.category = image || product.category;
+    product.category = category || product.category;
 
     const updateProduct = await product.save();
     res.json(updateProduct);
