@@ -3,9 +3,12 @@ import Product from "../models/products.js";
 //create product
 export const create = async (req, res) => {
   try {
-    const { name, price, description, image ,usermail,category} = req.body;
+    const { name, price, description, images ,usermail,category} = req.body;
    
-    
+     // Validate images as an array
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ message: "Please upload at least one image" });
+    }
 
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });
@@ -15,7 +18,7 @@ export const create = async (req, res) => {
       name,
       price,
       description,
-      image,
+      images,
       usermail,
       category,
     });
@@ -59,7 +62,7 @@ export const getProductById = async (req, res) => {
 //update product
 export const updateProduct = async (req, res) => {
   try {
-    const { name, price, description, image,category } = req.body;
+    const { name, price, description, images,category } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -69,7 +72,7 @@ export const updateProduct = async (req, res) => {
     product.name = name || product.name;
     product.price = price || product.price;
     product.description = description || product.description;
-    product.image = image || product.image;
+    product.images = images || product.images;
     product.category = category || product.category;
 
     const updateProduct = await product.save();
